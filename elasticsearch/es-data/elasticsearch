@@ -1,0 +1,3 @@
+ES_JAVA_OPTS="-Djna.tmpdir=/var/tmp"
+ES_STARTUP_SLEEP_TIME=5
+MAX_LOCKED_MEMORY=unlimited

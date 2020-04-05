@@ -1,0 +1,16 @@
+[Unit]
+Description=logstash-metrics
+
+[Service]
+Type=simple
+User=logstash
+Group=logstash
+EnvironmentFile=-/etc/sysconfig/logstash-metrics
+ExecStart=/usr/share/logstash/bin/logstash "--path.settings" "/etc/logstash-metrics"
+Restart=always
+WorkingDirectory=/
+Nice=19
+LimitNOFILE=16384
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,111 @@
+#---------------------------------------------------------------------
+# Global settings
+#---------------------------------------------------------------------
+global
+    log         x.x.x.x local2
+
+    chroot      /var/lib/haproxy
+    pidfile     /var/run/haproxy.pid
+    user        haproxy
+    group       haproxy
+    daemon
+
+    stats socket /var/lib/haproxy/stats
+
+    # Encryption
+    ssl-default-bind-ciphers ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS
+    ssl-default-bind-options no-sslv3 no-tls-tickets
+    ssl-default-server-ciphers ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256:ECDHE-ECDSA-AES128-SHA:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA:ECDHE-ECDSA-AES256-SHA384:ECDHE-ECDSA-AES256-SHA:ECDHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA256:DHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES256-SHA:ECDHE-ECDSA-DES-CBC3-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES128-GCM-SHA256:AES256-GCM-SHA384:AES128-SHA256:AES256-SHA256:AES128-SHA:AES256-SHA:DES-CBC3-SHA:!DSS
+    ssl-default-server-options no-sslv3 no-tls-tickets
+    tune.ssl.default-dh-param 2048
+
+    ca-base /etc/haproxy/tls.d/ca
+    crt-base /etc/haproxy/tls.d/certs
+
+#---------------------------------------------------------------------
+# common defaults that all the 'listen' and 'backend' sections will
+# use if not designated in their block
+#---------------------------------------------------------------------
+defaults
+    mode                    http
+    log                     global
+    option                  httplog
+    option                  dontlognull
+    option http-server-close
+    option forwardfor       except x.x.x.x/8
+    option                  redispatch
+    retries                 3
+    timeout http-request    10s
+    timeout queue           1m
+    timeout connect         10s
+    timeout client          1m
+    timeout server          1m
+    timeout http-keep-alive 10s
+    timeout check           10s
+    maxconn                 1000000
+    balance                 roundrobin
+
+#---------------------------------------------------------------------
+# Admin/Stats
+#---------------------------------------------------------------------
+userlist stats-auth
+    group readonly users admin
+    user  admin    insecure-password xxxx 
+
+    group super    users root
+    user  root     insecure-password xxxx
+
+listen stats :2048
+    maxconn 10
+    mode http
+    stats enable
+    acl AUTH       http_auth(stats-auth)
+    acl AUTH_ADMIN http_auth_group(stats-auth) super
+    stats http-request auth unless AUTH
+    stats admin if AUTH_ADMIN
+    stats hide-version
+    stats uri /
+
+#---------------------------------------------------------------------
+# Production - banan Website (banan.com)
+#---------------------------------------------------------------------
+
+#
+# Peers
+#
+peers peers
+    peer peer1 ip.ip.ip.ip:7778
+    peer peer2 ip.ip.ip.ip:7778
+
+#
+# Frontends
+#
+frontend f_ip.ip.ip.ip-http
+    bind ip.ip.ip.ip:80
+    option httplog
+    option forwardfor
+    option http-server-close
+    option httpclose
+    default_backend b_ip.ip.ip.ip
+
+frontend f_ip.ip.ip.ip-https
+    bind ip.ip.ip.ip:443 ssl crt wildcard.domain.crt
+    mode http
+    option httplog
+    option forwardfor
+    option http-server-close
+    option httpclose
+    default_backend b_ip.ip.ip.ip
+
+#
+# Backends
+#
+backend b_ip.ip.ip.ip
+    balance source
+    stick-table type string len 64 size 100k expire 60m peers peers
+    stick store-response res.cook(API_SESSION)
+    stick match req.cook(API_SESSION)
+    option httpchk GET /alive.html
+    http.check expect status 200
+    server wpqlcomweb01 ip.ip.ip.ip:80 check
+    server wpqlcomweb02 ip.ip.ip.ip:80 check

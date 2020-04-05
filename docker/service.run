@@ -1,0 +1,7 @@
+docker service create --name example \
+       --detach \
+       --publish 6001:80/tcp \
+       --replicas 2 \
+       --mount src=/srv/nfs0/applications/example,dst=/usr/share/nginx/html,type=bind,readonly=1 \
+       --placement-pref 'spread=node.labels.node' \
+       nginx

@@ -1,0 +1,35 @@
+actions:
+  1:
+    action: delete_indices
+    description: >-
+      Delete all application logs after 90 days
+    options:
+      ignore_empty_list: True
+      disable_action: True
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: applications-
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 90
+  2:
+    action: delete_indices
+    description: >-
+      Delete all json logs after 90 days
+    options:
+      ignore_empty_list: True
+      disable_action: True
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: json-
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 90

@@ -1,0 +1,8 @@
+   openssl ca -config /var/ca/root/cnf/banan_com.ca.cnf -days "3290" -batch \
+      -extensions ca_x509_extensions -notext \
+      -md      "sha256" \
+      -config  "/var/ca/root/cnf/banan_com.ca.cnf" \
+      -in      "/var/ca/root/csr/windows-intermediate_banan_com.server.csr" \
+      -keyfile "/var/ca/root/key/banan_com.ca.key" \
+      -out     "/var/ca/root/crt/windows-intermediate.ca.crt" \
+      -cert    "/var/ca/root/crt/banan_com.ca.crt"

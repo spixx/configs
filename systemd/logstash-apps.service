@@ -1,0 +1,16 @@
+[Unit]
+Description=logstash-apps
+
+[Service]
+Type=simple
+User=logstash
+Group=logstash
+EnvironmentFile=-/etc/sysconfig/logstash-apps
+ExecStart=/usr/share/logstash/bin/logstash "--path.settings" "/etc/logstash-apps"
+Restart=always
+WorkingDirectory=/
+Nice=19
+LimitNOFILE=16384
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,9 @@
+node.name: logstash-beats
+path.data: /var/lib/logstash-beats
+pipeline.workers: 2
+pipeline.output.workers: 1
+pipeline.batch.size: 125
+pipeline.batch.delay: 5
+path.config: /etc/logstash-beats/conf.d
+log.level: warn
+path.logs: /var/log/logstash-beats

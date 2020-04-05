@@ -1,0 +1,68 @@
+#version=DEVEL
+# System authorization information
+auth --enableshadow --passalgo=sha512
+# Use network installation
+url --url="http://mirror.hh.se/centos/7/os/x86_64/"
+# Use graphical install
+graphical
+# Run the Setup Agent on first boot
+firstboot --enable
+ignoredisk --only-use=sda
+# Keyboard layouts
+keyboard --vckeymap=se --xlayouts='se'
+# System language
+lang en_US.UTF-8
+
+# Network information
+network  --bootproto=static --device=ens192 --gateway=x.x.x.x --ip=x.x.x.x --nameserver=x.x.x.x,x.x.x.x --netmask=x.x.x.x --noipv6 --activate
+network  --hostname=lt-centos7-template
+
+# Root password
+rootpw --iscrypted
+# System services
+services --enabled="chronyd"
+# System timezone
+timezone Europe/Stockholm --isUtc --ntpservers=x.x.x.x
+# System bootloader configuration
+bootloader --location=mbr --boot-drive=sda
+# Partition clearing information
+clearpart --none --initlabel
+# Disk partitioning information
+part /boot/efi --fstype="efi" --ondisk=sda --size=512 --fsoptions="umask=0077,shortname=winnt"
+part /boot --fstype="xfs" --ondisk=sda --size=512
+part pv.313 --fstype="lvmpv" --ondisk=sda --size=21764
+volgroup vg0 --pesize=4096 pv.313
+logvol /home  --fstype="xfs" --size=2048 --name=lv6home --vgname=vg0
+logvol /tmp  --fstype="xfs" --size=4096 --name=lv1tmp --vgname=vg0
+logvol /var  --fstype="xfs" --size=1024 --name=lv3var --vgname=vg0
+logvol /var/log  --fstype="xfs" --size=1024 --name=lv4log --vgname=vg0
+logvol /var/log/audit  --fstype="xfs" --size=256 --name=lv5audit --vgname=vg0
+logvol swap  --fstype="swap" --size=1024 --name=lv99swap --vgname=vg0
+logvol /usr  --fstype="xfs" --size=4096 --name=lv2usr --vgname=vg0
+logvol /  --fstype="xfs" --size=8192 --name=lv0root --vgname=vg0
+
+%packages
+@^minimal
+@core
+chrony
+openscap
+openscap-scanner
+scap-security-guide
+
+%end
+
+%addon org_fedora_oscap
+    content-type = scap-security-guide
+    profile = standard
+%end
+
+%addon com_redhat_kdump --disable --reserve-mb='auto'
+
+%end
+
+%anaconda
+pwpolicy root --minlen=6 --minquality=50 --notstrict --nochanges --notempty
+pwpolicy user --minlen=6 --minquality=50 --notstrict --nochanges --notempty
+pwpolicy luks --minlen=6 --minquality=50 --notstrict --nochanges --notempty
+%end
+

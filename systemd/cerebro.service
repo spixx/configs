@@ -1,0 +1,10 @@
+[Unit]
+Description=Cerebro
+Wants=elasticsearch.service
+
+[Service]
+Type=simple
+ExecStart=/opt/cerebro/cerebro-latest/bin/cerebro
+
+[Install]
+WantedBy=multi-user.target

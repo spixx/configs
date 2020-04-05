@@ -1,0 +1,1 @@
+metricbeat setup --dashboards -E output.logstash.enabled=false -E 'output.elasticsearch.hosts=["x.x.x.x:9200"]'

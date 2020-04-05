@@ -1,0 +1,41 @@
+queue_directory = /var/spool/postfix
+command_directory = /usr/sbin
+daemon_directory = /usr/libexec/postfix
+data_directory = /var/lib/postfix
+mail_owner = postfix
+myhostname = sync.qit.nu
+mydomain = banan.com
+myorigin = $mydomain
+
+inet_interfaces = localhost
+inet_protocols = all
+mydestination = $myhostname, localhost.$mydomain, localhost
+unknown_local_recipient_reject_code = 550
+
+mynetworks = x.x.x.x/8
+
+relayhost = [x.x.x.x]
+
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+
+smtpd_banner = $myhostname ESMTP $mail_name
+
+debug_peer_level = 2
+
+debugger_command =
+        PATH=/bin:/usr/bin:/usr/local/bin; export PATH; (echo cont;
+        echo where) | gdb $daemon_directory/$process_name $process_id 2>&1
+        >$config_directory/$process_name.$process_id.log & sleep 5
+
+sendmail_path = /usr/sbin/sendmail.postfix
+newaliases_path = /usr/bin/newaliases.postfix
+mailq_path = /usr/bin/mailq.postfix
+setgid_group = postdrop
+html_directory = no
+manpage_directory = /usr/share/man
+sample_directory = /usr/share/doc/postfix-2.6.6/samples
+readme_directory = /usr/share/doc/postfix-2.6.6/README_FILES
+
+message_size_limit = 102400000
+mailbox_size_limit = 102400001

@@ -1,0 +1,22 @@
+---
+# Remember, leave a key empty if there is no value.  None will be a string,
+# not a Python "NoneType"
+client:
+  hosts:
+    - ip.ip.ip.ip 
+  port: 9200
+  url_prefix:
+  use_ssl: False
+  certificate:
+  client_cert:
+  client_key:
+  ssl_no_validate: False
+  timeout: 30
+  master_only: False
+
+logging:
+  loglevel: INFO
+  #loglevel: WARNING
+  logfile: /var/log/curator/curator.log
+  logformat: default
+  blacklist: ['elasticsearch', 'urllib3']

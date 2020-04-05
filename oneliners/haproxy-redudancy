@@ -1,0 +1,5 @@
+yum -y install haproxy
+yum -y install pacemaker pcs
+systemctl start pcsd.service
+systemctl enable pcsd.service
+passwd hacluster

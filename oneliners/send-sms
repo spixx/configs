@@ -1,0 +1,1 @@
+curl --data-urlencode "ServiceId=114" --data-urlencode "Username=banan" --data-urlencode "Password=XXX" --data-urlencode "Source=bananSMS" --data-urlencode "Destination=+$number" --data-urlencode "Userdata=Dear user your AD password is: $pass" -G "https://ws1.sp247.net/smscsimplehttp"

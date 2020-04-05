@@ -1,0 +1,8 @@
+/var/log/kibana/*.log {
+    missingok
+    notifempty
+    sharedscripts
+    postrotate
+    /bin/kill -HUP $(cat /var/run/kibana/kibana.pid 2>/dev/null) 2>/dev/null
+    endscript
+}

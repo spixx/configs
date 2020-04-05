@@ -1,0 +1,18 @@
+filebeat:
+  prospectors:
+    - type: log
+      enabled: true
+      overwrite_keys: true
+      json.keys_under_root: true
+      paths:
+        - /var/log/applications/test.json
+
+output.logstash:
+  hosts: ["x.x.x.x:5004", "x.x.x.x:5004"]
+  loadbalance: true
+
+logging:
+  level: info
+  files:
+    rotateeverybytes: 10485760
+    keepfiles: 2

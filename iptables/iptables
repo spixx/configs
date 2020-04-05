@@ -1,0 +1,40 @@
+*filter
+:INPUT DROP [0:0]
+:FORWARD DROP [0:0]
+:OUTPUT DROP [0:0]
+
+# ICMP
+-A INPUT -p icmp --icmp-type echo-reply -j ACCEPT
+-A INPUT -p icmp --icmp-type destination-unreachable -j ACCEPT
+-A INPUT -p icmp --icmp-type time-exceeded -j ACCEPT
+-A INPUT -p icmp --icmp-type echo-request -j ACCEPT
+
+# Spoof
+-A INPUT -i <CHANGEME> -s x.x.x.x/12 -j LOG --log-prefix "[FW] - IP DROP SPOOF B: "
+-A INPUT -i <CHANGEME> -s x.x.x.x/16 -j LOG --log-prefix "[FW] - IP DROP SPOOF C: "
+-A INPUT -i <CHANGEME> -s x.x.x.x/4 -j LOG --log-prefix "[FW] - IP DROP MULTICAST D: "
+-A INPUT -i <CHANGEME> -s x.x.x.x/5 -j LOG --log-prefix "[FW] - IP DROP SPOOF E: "
+-A INPUT -i <CHANGEME> -d x.x.x.x/8 -j LOG --log-prefix "[FW] - IP DROP LOOPBACK: "
+
+# Allow EST
+-A OUTPUT -p tcp -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p udp -m state --state NEW,ESTABLISHED -j ACCEPT
+-A OUTPUT -p icmp -m state --state NEW,ESTABLISHED -j ACCEPT
+
+-A INPUT -p tcp -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -p udp -m state --state ESTABLISHED -j ACCEPT
+-A INPUT -p icmp -m state --state ESTABLISHED -j ACCEPT
+
+# Allow lo
+-A OUTPUT -o lo -j ACCEPT
+-A INPUT -i lo -j ACCEPT
+-A INPUT -s x.x.x.x/8 -j DROP
+
+# Allow services
+## SSH
+-A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+
+# Default log/drop
+-A INPUT -j LOG
+-A INPUT -j DROP
+COMMIT

@@ -1,0 +1,53 @@
+actions:
+  1:
+    action: index_settings
+    description: >-
+      Set all to readonly after 5 days
+    options:
+      disable_action: False
+      index_settings:
+        index:
+          blocks:
+            write: True
+      ignore_unavailable: False
+      preserve_existing: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: filebeat-
+      exclude:
+    - filtertype: age
+      source: name
+      direction: older
+      timestring: '%Y.%m.%d'
+      unit: days
+      unit_count: 5
+
+  2:
+    action: forcemerge
+    description: >-
+      forceMerge filebeat- prefixed indices older than 5 days (based on index
+      creation_date) to 2 segments per shard.  Delay 120 seconds between each
+      forceMerge operation to allow the cluster to quiesce. Skip indices that
+      have already been forcemerged to the minimum number of segments to avoid
+      reprocessing.
+    options:
+      max_num_segments: 2
+      delay: 120
+      timeout_override:
+      continue_if_exception: False
+      disable_action: False
+    filters:
+    - filtertype: pattern
+      kind: prefix
+      value: filebeat-
+      exclude:
+    - filtertype: age
+      source: creation_date
+      direction: older
+      unit: days
+      unit_count: 6
+      exclude:
+    - filtertype: forcemerged
+      max_num_segments: 2
+      exclude:

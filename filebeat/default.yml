@@ -1,0 +1,36 @@
+filebeat:
+  prospectors:
+    -
+      paths:
+        - /var/log/secure
+        - /var/log/messages
+        - /var/log/maillog
+      input_type: log
+      document_type: syslog
+
+    -
+      paths:
+        - /var/log/audit/audit.log
+      input_type: log
+      document_type: audit
+
+    # Example application
+    #-
+      #paths:
+        #- /var/log/application/application.log
+        #input_type: log
+        #document_type: syslog
+        #fields_under_root: true
+        #fields:
+          #group: stix
+          #application: application
+
+output.logstash:
+  hosts: ["x.x.x.x:5002", "x.x.x.x:5002"]
+  loadbalance: true
+
+logging:
+  level: info
+  files:
+    rotateeverybytes: 10485760
+    keepfiles: 2

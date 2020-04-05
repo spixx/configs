@@ -1,0 +1,1 @@
+JAVA_OPTS="-Dorg.sqlite.tmpdir=/var/tmp"
